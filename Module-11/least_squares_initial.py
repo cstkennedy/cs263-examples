@@ -32,18 +32,6 @@ def swap_rows(matrix_XTX, matrix_XTY, largest_idx, i):
         matrix_XTY[[i, largest_idx]] = matrix_XTY[[largest_idx, i]]
 
 
-def _backsolve(matrix_XTX, matrix_XTY):
-
-    num_rows, _ = matrix_XTX.shape
-
-    for i in reversed(range(1, num_rows)):
-        for j in reversed(range(0, i)):
-            s = matrix_XTX[j, i]
-
-            matrix_XTX[j, i] -= (s * matrix_XTX[i, i])
-            matrix_XTY[j] -= (s * matrix_XTY[i])
-
-
 def scale_row(matrix_XTX, matrix_XTY, i):
     scaling_factor = matrix_XTX[i, i]
     matrix_XTX[i, :] /= scaling_factor
@@ -58,6 +46,20 @@ def eliminate(matrix_XTX, matrix_XTY, i):
 
         matrix_XTX[row_i] = matrix_XTX[row_i] - s * matrix_XTX[i]
         matrix_XTY[row_i] = matrix_XTY[row_i] - s * matrix_XTY[i]
+
+
+def _backsolve(matrix_XTX, matrix_XTY):
+
+    num_rows, _ = matrix_XTX.shape
+
+    for i in reversed(range(1, num_rows)):
+        for j in reversed(range(0, i)):
+            s = matrix_XTX[j, i]
+
+            matrix_XTX[j, i] -= (s * matrix_XTX[i, i])
+            matrix_XTY[j] -= (s * matrix_XTY[i])
+
+
 
 
 def solve_matrix(matrix_XTX, matrix_XTY):
