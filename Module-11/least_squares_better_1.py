@@ -13,6 +13,25 @@ def print_matrices(matrix_XTX, matrix_XTY):
     print(matrix_XTY)
 
 
+def find_largest_row_by_col(matrix, col_index):
+    num_rows, _ = matrix.shape
+
+    i = col_index
+    largest_idx = i
+    current_col = i
+    for j in range(i + 1, num_rows):
+        if matrix[largest_idx, i] < matrix[j, current_col]:
+            largest_idx = j
+
+    return largest_idx
+
+
+def swap_rows(matrix_XTX, matrix_XTY, largest_idx, i):
+    if largest_idx != i:
+        matrix_XTX[[i, largest_idx], :] = matrix_XTX[[largest_idx, i], :]
+        matrix_XTY[[i, largest_idx]] = matrix_XTY[[largest_idx, i]]
+
+
 def _backsolve(matrix_XTX, matrix_XTY):
 
     num_rows, _ = matrix_XTX.shape
@@ -25,6 +44,22 @@ def _backsolve(matrix_XTX, matrix_XTY):
             matrix_XTY[j] -= (s * matrix_XTY[i])
 
 
+def scale_row(matrix_XTX, matrix_XTY, i):
+    scaling_factor = matrix_XTX[i, i]
+    matrix_XTX[i, :] /= scaling_factor
+    matrix_XTY[i] /= scaling_factor
+
+
+def eliminate(matrix_XTX, matrix_XTY, i):
+    num_rows, _ = matrix_XTX.shape
+
+    for row_i in range(i + 1, num_rows):
+        s = matrix_XTX[row_i][i]
+
+        matrix_XTX[row_i] = matrix_XTX[row_i] - s * matrix_XTX[i]
+        matrix_XTY[row_i] = matrix_XTY[row_i] - s * matrix_XTY[i]
+
+
 def solve_matrix(matrix_XTX, matrix_XTY):
     """
     Solve a matrix and return the resulting solution vector
@@ -35,32 +70,17 @@ def solve_matrix(matrix_XTX, matrix_XTY):
 
     for i in range(0, num_rows):
         # Find column with largest entry
-        largest_idx = i
-        current_col = i
-        for j in range(i + 1, num_rows):
-
-            if matrix_XTX[largest_idx, current_col] < matrix_XTX[j, current_col]:
-                largest_idx = j
+        largest_idx = find_largest_row_by_col(matrix_XTX, i)
 
         # Swap
-        if largest_idx != current_col:
-            matrix_XTX[[i, largest_idx], :] = matrix_XTX[[largest_idx, i], :]
-            matrix_XTY[[i, largest_idx]] = matrix_XTY[[largest_idx, i]]
+        current_col = i
+        swap_rows(matrix_XTX, matrix_XTY, largest_idx, current_col)
 
         # Scale
-        scaling_factor = matrix_XTX[i, i]
-        matrix_XTX[i, :] /= scaling_factor
-        matrix_XTY[i] /= scaling_factor
+        scale_row(matrix_XTX, matrix_XTY, i)
 
         # Eliminate
-        for row_i in range(i + 1, num_rows):
-            s = matrix_XTX[row_i][i]
-
-            matrix_XTX[row_i] = matrix_XTX[row_i] - s * matrix_XTX[i]
-            matrix_XTY[row_i] = matrix_XTY[row_i] - s * matrix_XTY[i]
-
-        #  print("{:-^80}".format(f"Iteration #{i:}"))
-        #  print_matrices(matrix_XTX, matrix_XTY)
+        eliminate(matrix_XTX, matrix_XTY, i)
 
     _backsolve(matrix_XTX, matrix_XTY)
 
@@ -72,6 +92,7 @@ def main():
     # Set up input data points, X, Y, and XT
     points = [(0., 0.), (1., 1.), (2., 4.)]
 
+    # Set up X, Y, and XT matrices 
     matrix_X = np.array([[1., 0., 0.],
                          [1., 1., 1.],
                          [1., 2., 4.]])
