@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def print_matrices(matrix_XTX, matrix_XTY):
     """
     Print the XTX and XTY matrices
@@ -33,15 +34,14 @@ def swap_rows(matrix_XTX, matrix_XTY, largest_idx, i):
 
 
 def _backsolve(matrix_XTX, matrix_XTY):
-
     num_rows, _ = matrix_XTX.shape
 
     for i in reversed(range(1, num_rows)):
         for j in reversed(range(0, i)):
             s = matrix_XTX[j, i]
 
-            matrix_XTX[j, i] -= (s * matrix_XTX[i, i])
-            matrix_XTY[j] -= (s * matrix_XTY[i])
+            matrix_XTX[j, i] -= s * matrix_XTX[i, i]
+            matrix_XTY[j] -= s * matrix_XTY[i]
 
 
 def scale_row(matrix_XTX, matrix_XTY, i):
@@ -88,18 +88,16 @@ def solve_matrix(matrix_XTX, matrix_XTY):
 
 
 def main():
+    points = [(0.0, 0.0), (1.0, 1.0), (2.0, 4.0)]
 
-    # Set up input data points, X, Y, and XT
-    points = [(0., 0.), (1., 1.), (2., 4.)]
+    # Compute X
+    x_values = [x for x, _ in points]
+    x_values = np.array(x_values)
+    x_values_squared = x_values ** 2
+    matrix_X = np.column_stack((np.ones(len(points)), x_values, x_values_squared))
 
-    # Set up X, Y, and XT matrices 
-    matrix_X = np.array([[1., 0., 0.],
-                         [1., 1., 1.],
-                         [1., 2., 4.]])
-
-    matrix_Y = np.array([0,
-                         1,
-                         4])
+    # Compute Y
+    matrix_Y = np.array([y for _, y in points])
 
     matrix_XT = matrix_X.transpose()
 
@@ -109,10 +107,15 @@ def main():
 
     print_matrices(matrix_XTX, matrix_XTY)
 
+    matrix_XTY = matrix_XTY.reshape(matrix_XTX.shape[0], 1)
+    matrix_augmented = np.hstack((matrix_XTX, matrix_XTY))
+    print(matrix_augmented)
+
+    solution = solve_matrix(matrix_augmented)
+
     print()
     print("{:-^40}".format("Solution"))
-    solution = solve_matrix(matrix_XTX, matrix_XTY)
-    print(solution)
+    print(np.polynomial.Polynomial(solution))
 
 
 if __name__ == "__main__":
