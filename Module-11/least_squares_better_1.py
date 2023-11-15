@@ -1,90 +1,101 @@
 import numpy as np
 
 
-def print_matrices(matrix_XTX, matrix_XTY):
+def swap_current_row_with_largest_row(matrix: np.array, current_idx: int) -> None:
     """
-    Print the XTX and XTY matrices
+    Find the row (starting with the current row) with the largest entry in the
+    column with the same index as the current row (e.g., matrix[1,1]). Consider
+    only rows below the current one.
+
+    Args:
+        matrix: augmented matrix to update
+
+        current_idx: current row (and column) index
     """
 
-    print("{:*^40}".format("XTX"))
-    print(matrix_XTX)
-
-    print()
-    print("{:*^40}".format("XTY"))
-    print(matrix_XTY)
-
-
-def find_largest_row_by_col(matrix, col_index):
     num_rows, _ = matrix.shape
 
-    i = col_index
-    largest_idx = i
-    current_col = i
-    for j in range(i + 1, num_rows):
-        if matrix[largest_idx, i] < matrix[j, current_col]:
+    # Find the row with the largest column entry
+    row_idx = current_idx
+    largest_idx = row_idx
+    current_col = current_idx
+    for j in range(row_idx + 1, num_rows):
+        if matrix[largest_idx, row_idx] < matrix[j, current_col]:
             largest_idx = j
 
-    return largest_idx
+    # If the current row is not the largest row then swap
+    if largest_idx != current_idx:
+        matrix[[current_idx, largest_idx], :] = matrix[[largest_idx, current_idx], :]
 
 
-def swap_rows(matrix_XTX, matrix_XTY, largest_idx, i):
-    if largest_idx != i:
-        matrix_XTX[[i, largest_idx], :] = matrix_XTX[[largest_idx, i], :]
-        matrix_XTY[[i, largest_idx]] = matrix_XTY[[largest_idx, i]]
+def _backsolve(matrix: np.array) -> None:
+    """
+    Back solve the matrix by performing the necessary row scale and subtraction
+    operations to obtain a diagonal matrix with ones on the diagonal.
 
+    The augmented column will contain the solution.
 
-def _backsolve(matrix_XTX, matrix_XTY):
-    num_rows, _ = matrix_XTX.shape
+    Args:
+        matrix: augmented matrix
+    """
+    num_rows, _ = matrix.shape
 
     for i in reversed(range(1, num_rows)):
         for j in reversed(range(0, i)):
-            s = matrix_XTX[j, i]
+            scaling_factor = matrix[j, i]
 
-            matrix_XTX[j, i] -= s * matrix_XTX[i, i]
-            matrix_XTY[j] -= s * matrix_XTY[i]
-
-
-def scale_row(matrix_XTX, matrix_XTY, i):
-    scaling_factor = matrix_XTX[i, i]
-    matrix_XTX[i, :] /= scaling_factor
-    matrix_XTY[i] /= scaling_factor
+            matrix[j, [i, -1]] -= scaling_factor * matrix[i, [i, -1]]
 
 
-def eliminate(matrix_XTX, matrix_XTY, i):
-    num_rows, _ = matrix_XTX.shape
+def scale_row(matrix: np.array, current_row_idx: int) -> None:
+    """
+    Scale every entry of the current row by the value of the corresponding
+    column (e.g., matrix[2,2])
+    """
 
-    for row_i in range(i + 1, num_rows):
-        s = matrix_XTX[row_i][i]
-
-        matrix_XTX[row_i] = matrix_XTX[row_i] - s * matrix_XTX[i]
-        matrix_XTY[row_i] = matrix_XTY[row_i] - s * matrix_XTY[i]
+    scaling_factor = matrix[current_row_idx, current_row_idx]
+    matrix[current_row_idx, :] /= scaling_factor
 
 
-def solve_matrix(matrix_XTX, matrix_XTY):
+def eliminate(matrix: np.array, current_row_idx: int) -> None:
+    """
+    Subract multiples of the current rows from all rows below it. Once this
+    function completes all rows below this one will contain zero in the
+    "current_row_idx" column
+    """
+
+    num_rows, _ = matrix.shape
+
+    for row_i in range(current_row_idx + 1, num_rows):
+        scaling_factor = matrix[row_i][current_row_idx]
+
+        matrix[row_i] = matrix[row_i] - scaling_factor * matrix[current_row_idx]
+
+
+def solve_matrix(matrix_augmented: np.array) -> np.array:
     """
     Solve a matrix and return the resulting solution vector
+
+    Args:
+        matrix_augmented: an n-by-n matrix with a vector augmented in the
+        right-most column
+
+    Returns:
+        constants c_0, c_1, c_2, ... c_n depending on the number of rows in the
+        supplied matrix
     """
 
-    # Get the dimensions (shape) of the XTX matrix
-    num_rows, num_columns = matrix_XTX.shape
+    # Get the number of rows in the matrix
+    num_rows, _ = matrix_augmented.shape
 
-    for i in range(0, num_rows):
-        # Find column with largest entry
-        largest_idx = find_largest_row_by_col(matrix_XTX, i)
+    for current_row_idx in range(0, num_rows):
+        swap_current_row_with_largest_row(matrix_augmented, current_row_idx)
+        scale_row(matrix_augmented, current_row_idx)
+        eliminate(matrix_augmented, current_row_idx)
 
-        # Swap
-        current_col = i
-        swap_rows(matrix_XTX, matrix_XTY, largest_idx, current_col)
+    _backsolve(matrix_augmented)
 
-        # Scale
-        scale_row(matrix_XTX, matrix_XTY, i)
-
-        # Eliminate
-        eliminate(matrix_XTX, matrix_XTY, i)
-
-    _backsolve(matrix_XTX, matrix_XTY)
-
-    return matrix_XTY
+    return matrix_augmented[:, -1].flatten()
 
 
 def main():
@@ -105,10 +116,18 @@ def main():
     matrix_XTX = np.matmul(matrix_XT, matrix_X)
     matrix_XTY = np.matmul(matrix_XT, matrix_Y)
 
-    print_matrices(matrix_XTX, matrix_XTY)
-
     matrix_XTY = matrix_XTY.reshape(matrix_XTX.shape[0], 1)
     matrix_augmented = np.hstack((matrix_XTX, matrix_XTY))
+
+    print("{:*^40}".format("XTX"))
+    print(matrix_XTX)
+
+    print()
+    print("{:*^40}".format("XTY"))
+    print(matrix_XTY)
+
+    print()
+    print("{:*^40}".format("XTX|XTY"))
     print(matrix_augmented)
 
     solution = solve_matrix(matrix_augmented)
