@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-import copy
 import collections.abc
+import copy
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Self
 
 
 class LinkedList(collections.abc.Iterable):
     @dataclass
     class Node:
         data: Any = None
-        next_node: Node = None
+        next_node: Self = None
 
     class Iterator(collections.abc.Iterator):
         def __init__(self, starting_node=None):
@@ -28,40 +28,18 @@ class LinkedList(collections.abc.Iterable):
             return value
 
     def __init__(self, initial_data: collections.abc.Iterable = None):
-        self.head: Node = None
-        self.tail: Node = None
-        self.length: int = 0
+        self.head: LinkedList.Node = None
+        self.tail: LinkedList.Node = None
+        self.length: int = 0  # Do not include the "buffer" Node
 
-        # Use extend to add any starting data
-        if initial_data:
-            self.extend(initial_data)
-
-    def __append_first(self, val):
-        """
-        Add the very first node
-        """
-
-        new_node = LinkedList.Node(val)
+        new_node = LinkedList.Node(data=None)
 
         self.head = new_node
         self.tail = new_node
 
-        self.length = 1
-
-    def __append_general(self, val):
-        """
-        Add every node other than the first node
-        """
-
-        new_node = LinkedList.Node(val)
-
-        # Add the new node after the current tail
-        self.tail.next_node = new_node
-
-        # The new node is now the tail
-        self.tail = new_node
-
-        self.length += 1
+        # Use extend to add any starting data
+        if initial_data:
+            self.extend(initial_data)
 
     def append(self, val: Any) -> None:
         """
@@ -73,11 +51,15 @@ class LinkedList(collections.abc.Iterable):
             val: piece of data to store
         """
 
-        if not self.head:
-            self.__append_first(val)
+        new_node = LinkedList.Node(val)
 
-        else:
-            self.__append_general(val)
+        # Add the new node after the current tail
+        self.tail.next_node = new_node
+
+        # The new node is now the tail
+        self.tail = new_node
+
+        self.length += 1
 
     def extend(self, collection: collections.abc.Iterable) -> None:
         """
@@ -92,7 +74,8 @@ class LinkedList(collections.abc.Iterable):
         return self.length
 
     def __iter__(self) -> LinkedList.Iterator:
-        return LinkedList.Iterator(starting_node=self.head)
+        second_node = self.head.next_node
+        return LinkedList.Iterator(starting_node=second_node)
 
     def __eq__(self, rhs: LinkedList) -> bool:
         """
@@ -120,8 +103,7 @@ class LinkedList(collections.abc.Iterable):
         return list_copy
 
     def __add__(self, other: collections.abc.Iterable) -> LinkedList:
-        new_ll = LinkedList()
-        new_ll.extend(self)
+        new_ll = LinkedList(self)
         new_ll.extend(other)
 
         return new_ll
@@ -136,4 +118,3 @@ class LinkedList(collections.abc.Iterable):
         inner_data_str = ", ".join(f"{datum!r}" for datum in self)
 
         return f"LinkedList(({inner_data_str}))"
-

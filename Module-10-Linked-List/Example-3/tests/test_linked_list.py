@@ -89,9 +89,7 @@ def test_append_int_twice():
     assert_that(ll, has_length(2))
 
     # Check __repr__
-    expected_strs = [
-        f"{datum!r}" for datum in range(2, 4)
-    ]
+    expected_strs = [f"{datum!r}" for datum in range(2, 4)]
     assert_that(str(ll), string_contains_in_order(*expected_strs))
 
 
@@ -162,9 +160,7 @@ def test_equality_various(build_interesting_list):
 def test_str_after_append_various(build_interesting_list):
     all_src_data, ll = build_interesting_list
 
-    expected_strs = [
-        f"{datum!r}" for datum in all_src_data
-    ]
+    expected_strs = [f"{datum!r}" for datum in all_src_data]
     assert_that(str(ll), string_contains_in_order(*expected_strs))
 
 
@@ -244,4 +240,3 @@ def test_contains():
 
     assert_that(Datum(100) not in ll)
     assert_that(Datum(122) not in ll)
-
