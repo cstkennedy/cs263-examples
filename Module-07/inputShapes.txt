@@ -8,4 +8,5 @@ Equilateral Triangle; 3 3 3
 Square; 9
 Circle; 5
 1337 Haxor; 1 lol i broke it
+Ellipse;
 

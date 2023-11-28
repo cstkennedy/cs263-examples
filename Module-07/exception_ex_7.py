@@ -1,5 +1,6 @@
 from typing import TextIO, Generator
 import sys
+import pprint as pp
 
 
 def parse_shape_file(input_file: TextIO) -> Generator[tuple[str, list[float]], None, None]:
@@ -54,6 +55,9 @@ def main():
     except FileNotFoundError as err:
         print(err)
         sys.exit(2)
+
+    #  print(shape_data)
+    pp.pprint(shape_data, indent=2, width=72)
 
 
 if __name__ == "__main__":
