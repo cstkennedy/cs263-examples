@@ -59,7 +59,8 @@ def main():
     for letter in ascii_lowercase:
         try:
             longest_word = max(
-                word for word in words if word.lower().startswith(letter)
+                (word for word in filtered_words if word.lower().startswith(letter)),
+                key=len,
             )
 
         except ValueError as _err:
@@ -76,7 +77,8 @@ def main():
     for letter in ascii_lowercase:
         try:
             shortest_word = min(
-                word for word in words if word.lower().startswith(letter)
+                (word for word in filtered_words if word.lower().startswith(letter)),
+                key=len,
             )
 
         except ValueError as _err:
