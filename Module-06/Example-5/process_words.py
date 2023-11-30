@@ -68,7 +68,7 @@ def main():
             shortest_word = min(words_starting_with_letter, key=len)
 
         except ValueError as _err:
-            # There were words that started with "letter"
+            # There were no words that started with "letter"
             # There is nothing to output
             continue
 

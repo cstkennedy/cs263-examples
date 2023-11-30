@@ -64,7 +64,7 @@ def main():
             )
 
         except ValueError as _err:
-            # There were words that started with "letter"
+            # There were no words that started with "letter"
             # There is nothing to output
             continue
 
@@ -82,7 +82,7 @@ def main():
             )
 
         except ValueError as _err:
-            # There were words that started with "letter"
+            # There were no words that started with "letter"
             # There is nothing to output
             continue
 
