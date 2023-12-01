@@ -1,48 +1,55 @@
 from hamcrest import *
-import unittest
+import pytest
 
 from examples import (Player, Referee, Board, Game)
 
 import copy
 
 
-class TestGame(unittest.TestCase):
-    """
-    1 - Does this piece of code perform the operations
-        it was designed to perform?
+"""
+1 - Does this piece of code perform the operations
+    it was designed to perform?
 
-    2 - Does this piece of code do something it was not
-        designed to perform?
+2 - Does this piece of code do something it was not
+    designed to perform?
 
-    1 Test per mutator
-    """
-    def setUp(self):
+1 Test per mutator
+"""
 
-        self.tom = Player("Tom")
-        self.a_cylon = Player()
+@pytest.fixture
+def empty_board():
+    yield Board()
 
-        self.empty_board = Board()
 
-        self.a_game = Game(self.tom, self.a_cylon)
+@pytest.fixture
+def players_and_game():
 
-    def test_constructor(self):
+    tom = Player("Tom")
+    a_cylon = Player()
 
-        assert_that(self.a_game.get_player1(), equal_to(self.tom))
-        assert_that(self.a_game.get_player2(), equal_to(self.a_cylon))
+    a_game = Game(tom, a_cylon)
 
-        assert_that(self.a_game.get_player1().get_symbol(), is_('X'))
-        assert_that(self.a_game.get_player2().get_symbol(), is_('O'))
+    yield tom, a_cylon, a_game
 
-        assert_that(self.a_game.is_over(), is_(False))
+def test_constructor(empty_board, players_and_game):
+    tom, a_cylon, a_game = players_and_game
 
-        assert_that(self.a_game.get_winner(), is_(none()))
-        assert_that(self.a_game.get_loser(), is_(none()))
+    assert_that(a_game.get_player1(), equal_to(tom))
+    assert_that(a_game.get_player2(), equal_to(a_cylon))
 
-        # Can not test without Board.equals method
-        assert_that(self.a_game.get_board(), equal_to(self.empty_board))
+    assert_that(a_game.get_player1().get_symbol(), is_('X'))
+    assert_that(a_game.get_player2().get_symbol(), is_('O'))
 
-    @unittest.skip("can not test")
-    def test_play_round():
+    assert_that(a_game.is_over(), is_(False))
 
-        # Can not test due to hardcoded System.in use in Player.next_move
-        pass
+    assert_that(a_game.get_winner(), is_(none()))
+    assert_that(a_game.get_loser(), is_(none()))
+
+    # Can not test without Board.equals method
+    assert_that(a_game.get_board(), equal_to(empty_board))
+
+@pytest.mark.skip(reason="can **not** test")
+def test_play_round():
+
+    # Can not test due to hardcoded System.in use in Player.next_move
+    pass
