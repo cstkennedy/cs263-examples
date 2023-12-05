@@ -2,6 +2,7 @@ import math
 
 
 def compute_wall_surface_area(length: float, width: float) -> float:
+
     area_one_wall = length * width
     area_four_walls = 4 * area_one_wall
 
@@ -11,6 +12,7 @@ def compute_wall_surface_area(length: float, width: float) -> float:
 def determine_gallons_required(
         wall_area: float, min_coverage: float = 350, max_coverage: float = 400
 ) -> tuple[int, int]:
+
     max_gallons = math.ceil(wall_area / min_coverage)
     min_gallons = math.ceil(wall_area / max_coverage)
 
