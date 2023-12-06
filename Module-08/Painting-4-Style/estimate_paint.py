@@ -48,7 +48,7 @@ def get_report(min_gallons: int, max_gallons: int, price_per_gallon: float) -> s
 
 def main():
     """
-    This is the driver logic for the program. The lenght, width, and price per
+    This is the driver logic for the program. The length, width, and price per
     gallon are currently hardcoded.
 
     TODO: add user input
