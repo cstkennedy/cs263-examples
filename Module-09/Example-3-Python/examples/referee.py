@@ -5,7 +5,7 @@ from typing import (Tuple)
 CellPair = Tuple[int, str]
 CellTriple = Tuple[CellPair, CellPair, CellPair]
 
-class Referee(object):
+class Referee:
     """
     The Meta-player that checks game status
     e.g., checks for wins, who won, if there is
@@ -145,7 +145,7 @@ class Referee(object):
         return num_matches == 3
 
     @staticmethod
-    def _player_num_from_symbol(sym: str) -> Player:
+    def _player_num_from_symbol(sym: str) -> int:
         """
         Given an 'X' or an 'O' determine which player is using the symbol.
 

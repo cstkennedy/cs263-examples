@@ -8,7 +8,7 @@ DEFAULT_SYMBOL_BLACKLIST = (".", "+", "-")
 
 
 def apply_word_filters(
-    words: Iterable[str], symbol_blacklist: tuple[str] = DEFAULT_SYMBOL_BLACKLIST
+    words: Iterable[str], symbol_blacklist: tuple[str, ...] = DEFAULT_SYMBOL_BLACKLIST
 ) -> Iterable[str]:
     """
     Take a collection of words and apply the following filters:

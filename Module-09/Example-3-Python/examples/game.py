@@ -129,7 +129,7 @@ class Game(object):
 
         return not self.is_over()
 
-    def get_board(self) -> bool:
+    def get_board(self) -> Board:
 
         return self._board
 
