@@ -1,0 +1,2 @@
+[tools.mypy]
+plugins = "numpy.typing.mypy_plugin"
